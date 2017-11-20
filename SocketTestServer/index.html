@@ -1,0 +1,221 @@
+
+<html>
+<head>
+	
+	<title> IO chat </title>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src='/socket.io/socket.io.js'></script>
+	<style type="text/css">
+
+			body{
+				margin-top: 30px;
+			}
+
+			#messageArea{
+				display: none;
+			}
+
+	        canvas {
+	            border: 1px solid #d3d3d3;
+	            background-color: #f1f1f1;
+	        }
+
+
+	</style>
+
+</head>
+
+<body onload="startGame()">
+
+	<div class = "container">
+
+		<div id="userFormArea" class="row">		
+			<div class="col-md-12">
+				<form id="userForm">
+					<div class="form-group">
+						<label>Enter Username</label>
+						<input class="form-control" id="username"></input>
+						<br />
+						<input type="submit" class="btn btn-primary" value="login" />
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<div id = "messageArea" class = "row">
+		
+			<div class="col-md-8">
+				<form id="messageForm">
+					<div class="form-group">
+						<label>Enter message</label>
+						<input class="form-control" id="message"></input>
+						<br />
+						<input type="submit" class="btn btn-primary" value="Send Message" />
+					</div>
+				</form>
+
+				<div class="chat" id="chat"> </div>
+			</div>
+
+			<div class="col-md-4">
+				<div class="well">
+					<h3>Online users</h3>
+					<ul class="list-group" id="users"></ul>
+				</div>
+			</div>
+
+		</div>	
+
+	</div>
+
+
+	<script>
+
+		$( () => { 
+
+			var socket = io.connect();
+
+			var $userFormArea = $('#userFormArea');
+			var $userForm = $('#userForm');
+			var $username = $('#username');
+			var $users = $('#users');
+
+			var $messageArea = $('#messageArea');
+			var $messageForm = $('#messageForm');
+
+			var $message = $('#message');
+			var $chat = $('#chat');
+			
+			$messageForm.submit( (e) => {
+				e.preventDefault();
+				socket.emit('send message', $message.val());
+				$message.val('');
+			});
+
+			socket.on('new message', (data) => {
+
+				$chat.append('<div class = "well"><strong>'+data.user+'</strong> : '+data.msg+'</div>');
+
+				if(data.msg == 'go'){
+					moveright()
+				}
+				if(data.msg == 'stop'){
+					moveStop()
+				}
+				if(data.msg == 'back'){
+					moveleft()
+				}
+				if(data.msg == 'up'){
+					moveup()
+				}
+				if(data.msg == 'down'){
+					movedown()
+				}
+			});
+
+
+			$userForm.submit( (e) => {
+				e.preventDefault();
+				console.log('asd');
+				socket.emit('new user', $username.val(), (data) =>{
+					if(data){
+							$userFormArea.hide();
+							$messageArea.show();
+					}
+				});
+
+				$username.val('');
+			});
+
+			socket.on('get users', (data) => {
+				var html = '';
+				for(i=0; i<data.length; i++){
+					html +='<li class = "list-group-item">'+data[i]+'</li>';
+				}
+				$users.html(html);
+			});
+
+
+		})
+
+	</script>
+
+<!-- / game center -->
+
+    <script>
+
+	    var myGamePiece;
+
+	    var startGame = () => {
+	         myGameArea.start();
+	         myGamePiece = new component(30, 30, "red", 10, 120);
+	    }
+
+	    var myGameArea = {
+	        canvas : document.createElement("canvas"),
+	        start : function() {
+	            this.canvas.width = 480;
+	            this.canvas.height = 170;
+	            this.context = this.canvas.getContext("2d");
+	            document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+	            this.interval = setInterval(updateGameArea, 20);
+
+	        },
+	        clear : function() {
+	        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+	    }
+	    }
+
+	    function component(width, height, color, x, y) {
+	        this.width = width;
+	        this.height = height;
+	        this.speedX = 0;
+	        this.speedY = 0;
+	        this.x = x;
+	        this.y = y; 
+	    
+	        this.update = () => {
+	            ctx = myGameArea.context;
+	            ctx.fillStyle = color;
+	            ctx.fillRect(this.x, this.y, this.width, this.height);
+	        }
+	        this.newPos = () => {
+	            this.x += this.speedX;
+	            this.y += this.speedY; 
+	        }
+
+	    }
+
+        var updateGameArea = () => {
+            myGameArea.clear();
+            myGamePiece.newPos();
+            myGamePiece.update();
+        }
+        var moveStop = () => {
+        	myGamePiece.speedX = 0;
+        	myGamePiece.speedY = 0;
+        }
+        var moveup = () => {
+            myGamePiece.speedY -= 1; 
+        }
+
+        var movedown = () => {
+            myGamePiece.speedY += 1; 
+        }
+
+        var moveleft = () => {
+            myGamePiece.speedX -= 1;
+        }
+
+        var moveright = () => {
+            myGamePiece.speedX += 1;
+        }
+        
+
+    </script>
+
+</body>
+</html>

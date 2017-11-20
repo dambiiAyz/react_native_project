@@ -1,0 +1,51 @@
+
+import React, { Component } from 'react';
+import SocketIOClient from 'socket.io-client';
+
+import {
+  AppRegistry,
+  StyleSheet,
+  Text,
+  View
+} from 'react-native';
+
+import Chat from './chat/chat'
+
+export default class TestAppNext extends Component {
+
+  constructor(props) {
+    super(props);
+  
+    this.state = {
+
+    };
+    
+  }
+
+  render() {
+    return (
+      <Chat/>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5FCFF',
+  },
+  welcome: {
+    fontSize: 20,
+    textAlign: 'center',
+    margin: 10,
+  },
+  instructions: {
+    textAlign: 'center',
+    color: '#333333',
+    marginBottom: 5,
+  },
+});
+
+AppRegistry.registerComponent('TestAppNext', () => TestAppNext);
